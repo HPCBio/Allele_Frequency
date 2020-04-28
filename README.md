@@ -97,9 +97,11 @@ Also copy or move these files that came with the repo in the data folder to the 
 
 # How to run the pipeline
 
-The pipeline should be run for each amplicon separately. It needs a different configuration file for each amplicon.
+The name of the pipeline is <b> AlleleFrequency_pipeline_v1.1.nf </b>. It came with this repo and it it located in the <b> scripts/</b> folder.
 
-The configuration file is just a text file containing one parameter-value pair per line. In other words, varriables set to specific values that the pipeline expects to configure and use during the analysis. Since there are so many of them, it is preferable to put them in a configuration file than to type them at the command line.
+The pipeline should be run for each amplicon separately. Moreover, each amplicon  needs a different configuration file.
+
+The configuration file is just a text file containing one parameter-value pair per line. In other words, parameters can be though of as variables and in this configuration file we simply set each one of them to a specific value.  The pipeline reads those variable/parameter assignments from that configuration file and uses them during the analysis. Since there are so many parameters, it is preferable to put them in a configuration file than to type them at the command line.
 
 We included examples of configuration files in the <b> conf/ </b> folder that came with this repo.
 
@@ -108,7 +110,7 @@ We included examples of configuration files in the <b> conf/ </b> folder that ca
 To run the pipeline type this command:
 
 <pre>
-nextflow run -c EGFR_codon254F_new.conf  AlleleFrequency_pipeline.nf
+nextflow run -c full/path/EGFR_codon254F_new.conf  full/path/AlleleFrequency_pipeline.nf
 </pre>
 
 ### Outputs of the pipeline

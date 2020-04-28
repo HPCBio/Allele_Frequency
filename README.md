@@ -1,6 +1,8 @@
 # Description
+
 Allele frequency of codons in specific targeted regions of the mouse genome.
 
+![Alt text](data/pipeline_figure.png?raw=true "Workflow")
 
 # Dependencies
 

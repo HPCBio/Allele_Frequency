@@ -22,7 +22,8 @@ This program expects the following tools/languages to be installed as modules an
 # Installation instructions
 
 - Install all dependencies first. You may need to have root access to install some of these tools/languages on a cluster.
-- Do not forget to launch the 'hello world' nextflow pipeline (as per https://www.nextflow.io/) to make sure it works fine.
+- Install Nextflow
+- Test your Nextflow installation: Do not forget to launch the 'hello world' nextflow pipeline (as per https://www.nextflow.io/) to make sure it works fine.
 - Clone this repo to a local unix-based cumputing platform like a cluster.
 
 # Data preparation
@@ -42,7 +43,7 @@ This program expects input files to come from  a Illumina platform using a fluid
 
 These files should be paired-ended fastq files; that is, there should be a forward read with extension R1.fastq and a reverse read with extension R2.fastq
 
-We know that there are four targeted regions; moreover, there could be several samples per region. Your files must be demultiplexed by amplicon and by sample; moreover the filenames should conform to this pattern:
+We know that there are four targeted regions; moreover, there could be several samples per region. Your files must be demultiplexed by amplicon and by sample. The filenames should conform to this pattern:
 
 <pre>
  AmpliconName - SampleName _ * _R[1|2].fastq
@@ -86,71 +87,86 @@ gunzip gencode.vM23.primary_assembly.annotation.gtf.gz
 
 </pre>
 
-Also copy or move these files that came with the repo in the data folder to the same location where the genomes files are
+Also copy or move the following files from the <b> data </b> folder that came with this repo to the folder with the genome files. 
 
 - Amplicon_Seqs.fasta
 - chr11.bed
 - chr6.bed
 - chr7.bed
 
-
+<pre>
+cp data/chr*bed  data/genome/
+cp data/Amplicon_Seqs.fasta data/genome/
+</pre>
 
 # How to run the pipeline
 
 The name of the pipeline is <b> AlleleFrequency_pipeline_v1.1.nf </b>. It came with this repo and it it located in the <b> scripts/</b> folder.
 
-The pipeline should be run for each amplicon separately. Moreover, each amplicon  needs a different configuration file.
+The pipeline should be run for each amplicon separately.
 
 The configuration file is just a text file containing one parameter-value pair per line. In other words, parameters can be though of as variables and in this configuration file we simply set each one of them to a specific value.  The pipeline reads those variable/parameter assignments from that configuration file and uses them during the analysis. Since there are so many parameters, it is preferable to put them in a configuration file than to type them at the command line.
 
+ Each amplicon  needs a different configuration file.
+ 
 We included examples of configuration files in the <b> conf/ </b> folder that came with this repo.
 
-### How to run the pipeline for the EGFRF_EGFRR amplicon
+### Example: run the pipeline for the EGFRF_EGFRR amplicon
 
 To run the pipeline type this command:
 
 <pre>
-nextflow run -c full/path/EGFR_codon254F_new.conf  full/path/AlleleFrequency_pipeline.nf
+nextflow run -c full/path/EGFR_codon254F.conf  full/path/AlleleFrequency_pipeline_v1.1.nf
 </pre>
 
-### Outputs of the pipeline
+## Outputs of the pipeline
 
 After the pipeline finishes execution successfully, you should see several folders inside the output path that you specified inside the configuration file.
 
 - <b>tmpResult-fastp_readPrep</b> This folder contains the results of the first step, read preparation with fastp
-- <b>BWA-align-n-sort</b> This folder contains the reults of the second step, alignment to genome with BWA
-- <b>readcounts</b> This folder contains the results of the third step, calclate allele frequecies with read-count tool
+- <b>BWA-align-n-sort</b> This folder contains the results of the second step, alignment to genome with BWA
+- <b>readcounts</b> This folder contains the results of the third step, calculate allele frequecies with the read-count tool
 - <b>MultiQC</b> This folder contains the results of the last step, read tracking with MultiQC
 
 In order to generate plots with the data produced by this pipeline, please read instructions in the next section.
 
 
-# How to run the R script to generate the plots
+# How to generate the plots
 
-The input files for this R script are inside the <b> results/ampliconx/readcounts/ </b>.
+The script that generates the plot is called <b>import_and_plot_from_full_counts.R</b>. It came with this repo and it is loctaed in the <b> scripts </b> folder. But first, you need to do the following: 
+
+The input files for this R script are inside the <b> results/ampliconx/readcounts/ </b> on a cluster somewhere.
 
 This folder has many intermediary results; we just need those ending in <b> BAM.summary.readcounts.txt </b> 
 
-- To keep sanity, simply make a new folder on your laptop <b> results/ampliconx/plots/ </b> and copy those file ending in <b> BAM.summary.readcounts.txt </b> from <b> results/ampliconx/readcounts/ </b> to <b> results4ampliconx/plots/ </b>.  You can do it from the command line with the scp command as shown below:
+- To keep your sanity, simply make a new folder on your laptop <b> mylaptop/results/ampliconx/plots/ </b> 
+
+- copy those file ending in <b> BAM.summary.readcounts.txt </b> from the cluster <b> results/ampliconx/readcounts/ </b> to <b> mylaptop/results/ampliconx/plots/ </b>.  You can do it from the command line with the scp command as shown below:
 
 <pre>
 
+## on your laptop
 mkdir -p mylaptop/results/ampliconx/plots/
+
+## on the cluster
 scp   results/ampliconx/readcounts/*BAM.summary.readcounts.txt   userid@domain:mylaptop/results/ampliconx/plot/
 
 </pre>
 
-Or you can use your favorite file transfer tool.
+Or you can use your favorite file transfer tool to copy files from the cluster to our laptop.
 
-- Next, copy the R script that came with this repo from <b> scripts/ </b> to this location
+- copy the R script that came with this repo from <b> scripts/ </b> to the same location on your laptop
 
 <pre>
 
+## on the cluster
 scp   scripts/import_and_plot_from_full_counts.R   userid@domain:mylaptop/results/ampliconx/plot/
 
 </pre>
 
-- Start RStudio on your laptop and load the script scripts/import_and_plot_from_full_counts.R
+The rest of the steps are performed on your laptop:
+
+- Start RStudio on your laptop and load the script import_and_plot_from_full_counts.R
 - Edit the script with the correct path to the default folder so that it will find the input files
 - Hit the run button to execute the script
 - It should generate a PDF file with the plot
